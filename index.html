@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dígalo con Mímica - Vintage</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Montserrat:wght@400;600;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        /* Colores Vintage Inspirados en la Imagen */
+        :root {
+            --vintage-bg: #fdf6e3; /* Crema muy claro para el fondo general */
+            --vintage-cream: #fff9e6; /* Crema para tarjetas/contenedores */
+            --vintage-red: #d9534f; /* Rojo apagado */
+            --vintage-blue: #577f92; /* Azul/Turquesa apagado */
+            --vintage-text-dark: #5d4037; /* Marrón oscuro para texto */
+            --vintage-text-light: #7d6356; /* Marrón más claro para texto secundario */
+            --vintage-border: #e0cda6; /* Borde sutil para tarjetas */
+            --vintage-green: #5cb85c; /* Verde para botones de éxito */
+            --vintage-yellow: #f0ad4e; /* Amarillo/Naranja para acentos (timer) */
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--vintage-bg);
+            color: var(--vintage-text-dark);
+            display: flex; 
+            flex-direction: column; 
+            height: 100dvh; 
+            overflow: hidden; 
+            padding: 0.5rem; 
+            box-sizing: border-box; 
+            align-items: center; 
+            /* Patrón de rayas diagonales */
+            background-image: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 20px,
+                rgba(217, 83, 79, 0.1) 20px, /* Rojo suave */
+                rgba(217, 83, 79, 0.1) 40px 
+            ),
+            repeating-linear-gradient(
+                -45deg,
+                transparent,
+                transparent 20px,
+                rgba(87, 127, 146, 0.1) 20px, /* Azul suave */
+                rgba(87, 127, 146, 0.1) 40px
+            );
+            background-size: 56.56px 56.56px; /* Ajusta el tamaño para que las intersecciones se vean bien */
+        }
+
+        .container {
+            background-color: var(--vintage-cream);
+            padding: 1.5rem;
+            border-radius: 12px; /* Bordes más redondeados estilo tarjeta */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 0 0 1px var(--vintage-border); /* Sombra y borde sutil */
+            width: 100%;
+            max-width: 700px; /* Un poco más estrecho para el estilo */
+            margin-left: auto; 
+            margin-right: auto;
+            flex-grow: 1; 
+            min-height: 0; 
+            overflow-y: auto; 
+            margin-bottom: 0.5rem; 
+        }
+
+        h1 {
+            font-family: 'Oswald', sans-serif;
+            font-size: 5.2rem; 
+            line-height: 1; 
+            color: var(--vintage-red);
+            text-shadow: 1px 1px 0px var(--vintage-cream), 2px 2px 0px var(--vintage-text-dark);
+            margin-top: 0.1rem; 
+            margin-bottom: 0.1rem; 
+            text-align: center;
+            flex-shrink: 0; 
+        }
+        h2 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: 1.75rem; 
+            color: var(--vintage-blue);
+            margin-bottom: 1rem;
+        }
+        h3 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 1.3rem; 
+            color: var(--vintage-text-dark);
+            margin-bottom: 0.75rem;
+        }
+
+        .btn {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            padding: 0.6rem 1.2rem; 
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            text-align: center;
+            min-width: 120px; 
+            border: 2px solid transparent;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .btn:active:not(:disabled) {
+            transform: translateY(1px);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        .btn:disabled {
+            background-color: #a8a29e; 
+            color: #e7e5e4; 
+            cursor: not-allowed;
+            border-color: #78716c;
+            box-shadow: none;
+        }
+        .btn-primary {
+            background-color: var(--vintage-blue);
+            color: var(--vintage-cream);
+        }
+        .btn-primary:hover:not(:disabled) {
+            background-color: #6a8fa3; 
+        }
+        .btn-secondary {
+            background-color: var(--vintage-red);
+            color: var(--vintage-cream);
+        }
+        .btn-secondary:hover:not(:disabled) {
+            background-color: #e06864; 
+        }
+        .btn-green {
+            background-color: var(--vintage-green);
+            color: white;
+        }
+        .btn-green:hover:not(:disabled) {
+            background-color: #6dc36d; 
+        }
+
+        .input-field {
+            background-color: white;
+            color: var(--vintage-text-dark);
+            border: 1px solid var(--vintage-border);
+            border-radius: 6px;
+            padding: 0.75rem; 
+            width: 100%;
+            font-size: 1rem; 
+            font-family: 'Roboto', sans-serif;
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: var(--vintage-blue);
+            box-shadow: 0 0 0 2px rgba(87, 127, 146, 0.3);
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(40, 40, 40, 0.85); 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 1rem; 
+        }
+        .modal-content {
+            background-color: var(--vintage-cream);
+            padding: 2rem; 
+            border-radius: 12px;
+            text-align: center;
+            max-width: 90%;
+            width: 500px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2), 0 0 0 2px var(--vintage-border);
+            overflow-y: auto; 
+            max-height: calc(100vh - 4rem); 
+        }
+
+        .team-card {
+            background-color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            border: 1px solid var(--vintage-border);
+            box-shadow: 0 2px 3px rgba(0,0,0,0.05);
+        }
+        .team-card h4 { color: var(--vintage-blue); font-weight: 700;}
+        .team-card p { color: var(--vintage-text-dark); }
+        .team-card .text-xs { color: var(--vintage-text-light); }
+
+        .current-team-card {
+            border-color: var(--vintage-blue);
+            box-shadow: 0 0 10px rgba(87, 127, 146, 0.5), 0 0 0 2px var(--vintage-blue);
+        }
+        .hidden {
+            display: none !important; 
+        }
+
+        .setup-modal-step {
+            width: 100%;
+        }
+        .setup-modal-buttons {
+            display: flex;
+            justify-content: space-between; 
+            margin-top: 1.5rem;
+            gap: 1rem; 
+        }
+        .setup-modal-buttons button {
+            flex-grow: 1; 
+        }
+        .movie-modal-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+        @media (min-width: 640px) { 
+            .movie-modal-buttons {
+                flex-direction: row;
+                justify-content: center;
+            }
+            .movie-modal-buttons button {
+                width: auto;
+            }
+        }
+        #timerDisplay {
+            color: var(--vintage-yellow);
+            font-family: 'Oswald', sans-serif;
+            text-shadow: 1px 1px 1px rgba(0,0,0,0.2);
+        }
+        #movieToAct, #movieModalTitle {
+            color: var(--vintage-blue);
+            background-color: rgba(255,255,255,0.5); 
+            border: 1px dashed var(--vintage-border);
+        }
+        .tituloJuego{
+            font-size: 40px;
+        }
+
+    </style>
+</head>
+<body>
+    <h1 class="tituloJuego">DÍGALO CON MÍMICA</h1>
+
+    <div id="initialScreen" class="container text-center">
+        <h2 class="mb-6">¡Bienvenido al Juego!</h2>
+        <p class="mb-8 text-lg" style="color: var(--vintage-text-light);">Prepara tus mejores actuaciones.</p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <button id="openSetupModalBtn" class="btn btn-primary text-xl py-3 px-6">Comenzar Configuración</button>
+            <button id="continuePreviousGameBtn" class="btn btn-secondary text-xl py-3 px-6 hidden">Continuar Partida Anterior</button>
+        </div>
+    </div>
+    
+    <div id="setupModalPlayerNames" class="modal hidden">
+        <div class="modal-content">
+            <div class="setup-modal-step">
+                <h2 class="mb-4">Paso 1: Jugadores</h2>
+                <label for="playerNames" class="block mb-2 text-left">Nombres (separados por coma):</label>
+                <textarea id="playerNames" class="input-field" rows="4" placeholder="Ana, Juan, Maria, Pedro, ..."></textarea>
+                <p id="playerNamesError" class="mt-2 text-sm text-left" style="color:var(--vintage-red);"></p>
+                <div class="setup-modal-buttons">
+                    <button id="nextToTeamsBtn" class="btn btn-primary">Siguiente</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="setupModalTeamsTime" class="modal hidden">
+        <div class="modal-content">
+            <div class="setup-modal-step">
+                <h2 class="mb-4">Paso 2: Equipos y Tiempo</h2>
+                <div class="mb-4">
+                    <label for="numTeams" class="block mb-2 text-left">Cantidad de Equipos (2 o más):</label>
+                    <input type="number" id="numTeams" class="input-field" min="2" value="2">
+                </div>
+                <div>
+                    <label for="timePerTurn" class="block mb-2 text-left">Tiempo por Turno (segundos):</label>
+                    <input type="number" id="timePerTurn" class="input-field" min="10" value="60">
+                </div>
+                <p id="teamsTimeError" class="mt-2 text-sm text-left" style="color:var(--vintage-red);"></p>
+                <div class="setup-modal-buttons">
+                    <button id="prevToPlayersBtn" class="btn btn-secondary">Anterior</button>
+                    <button id="nextToRoundsBtn" class="btn btn-primary">Siguiente</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="setupModalRounds" class="modal hidden">
+        <div class="modal-content">
+            <div class="setup-modal-step">
+                <h2 class="mb-4">Paso 3: Rondas</h2>
+                <label for="numRounds" class="block mb-2 text-left">Cantidad de Rondas (0 para indefinido):</label>
+                <input type="number" id="numRounds" class="input-field" min="0" value="0">
+                <p id="roundsError" class="mt-2 text-sm text-left" style="color:var(--vintage-red);"></p>
+                <div class="setup-modal-buttons">
+                    <button id="prevToTeamsModalBtn" class="btn btn-secondary">Anterior</button>
+                    <button id="startGameBtn" class="btn btn-green">Iniciar Juego</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="gameScreen" class="container hidden">
+        <div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-2">
+            <h2 id="currentRoundDisplay" class="text-xl sm:text-2xl">Ronda X</h2>
+            <div id="timerDisplay" class="text-2xl sm:text-3xl font-bold">00:00</div>
+        </div>
+
+        <div id="teamsDisplay" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-4">
+            </div>
+        
+        <div id="turnInfo" class="text-center mb-4 p-4 rounded-lg" style="background-color: rgba(255,255,255,0.05);">
+            <h3 id="currentTeamTurn" class="text-lg sm:text-xl">Turno del Equipo X</h3>
+            <p id="currentPlayerActor" class="text-base sm:text-lg">Actor: Jugador Y</p>
+            <button id="getMovieBtn" class="btn btn-primary mt-3">Obtener Película</button>
+        </div>
+        
+        <div id="actingSection" class="text-center mb-4 hidden p-4 rounded-lg" style="background-color: rgba(255,255,255,0.05);">
+            <h3 class="text-lg sm:text-xl">Película a actuar:</h3>
+            <p id="movieToAct" class="text-xl sm:text-2xl font-semibold my-3 p-3 rounded-md"></p>
+            <button id="startActingBtn" class="btn btn-green">¡Comenzar a Actuar!</button>
+        </div>
+
+        <div id="resultSection" class="text-center mb-4 hidden p-4 rounded-lg" style="background-color: rgba(255,255,255,0.05);">
+            <p id="timeUpMessage" class="text-lg sm:text-xl mb-3 hidden" style="color: var(--vintage-red); font-weight: bold;">¡Tiempo Agotado!</p>
+            <p class="mb-3 text-sm sm:text-base">¿El equipo adivinó la película?</p>
+            <div class="flex flex-col sm:flex-row justify-center gap-3">
+                <button id="guessedBtn" class="btn btn-green w-full sm:w-auto">¡Sí, Adivinada!</button>
+                <button id="notGuessedBtn" class="btn btn-secondary w-full sm:w-auto">No, No Adivinada</button> 
+            </div>
+        </div>
+        
+        <div id="nextTurnInfo" class="text-center mt-4 hidden p-3 rounded-lg" style="background-color: rgba(87, 127, 146, 0.2);">
+             <p id="nextTeamMessage" class="text-base sm:text-lg" style="color: var(--vintage-cream)"></p>
+        </div>
+    </div>
+
+    <div id="askContinueModal" class="modal hidden">
+        <div class="modal-content">
+            <h2 class="mb-4">Fin de la Ronda</h2>
+            <p class="mb-6 text-base sm:text-lg">¿Desean jugar otra ronda?</p>
+            <div class="flex flex-col sm:flex-row justify-center gap-3">
+                <button id="continueNextRoundBtn" class="btn btn-primary w-full sm:w-auto">Sí, Continuar</button>
+                <button id="endGameFromModalBtn" class="btn btn-secondary w-full sm:w-auto">No, Ver Podio</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="movieModal" class="modal hidden">
+        <div class="modal-content">
+            <h2 class="mb-2">¡Tu Película!</h2>
+            <p id="movieModalTitle" class="text-2xl sm:text-3xl font-bold mb-3 p-3 rounded-md"></p>
+            <p id="titleChangesLeft" class="text-sm mb-4" style="color: var(--vintage-text-light);">Cambios restantes esta ronda: 2</p>
+            <div class="movie-modal-buttons">
+                <button id="changeTitleBtn" class="btn btn-secondary">Cambiar Título</button>
+                <button id="confirmMovieBtn" class="btn btn-primary">¡Entendido, a actuar!</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="podiumScreen" class="container hidden">
+        <h2 class="text-center text-2xl sm:text-3xl mb-6">🏆 Podio Final 🏆</h2>
+        <div id="podiumDisplay" class="space-y-3">
+            </div>
+        <button id="playAgainBtn" class="btn btn-primary w-full mt-6 text-lg py-3">Jugar de Nuevo</button>
+    </div>
+
+    <script>
+        // --- GAME CONFIGURATION & STATE ---
+        let game;
+        let setupData = {
+            playerNames: [],
+            numTeams: 2,
+            timePerTurn: 60,
+            numRounds: 0
+        };
+        const movieTitles = [ 
+            "El Padrino", "Sueño de Libertad", "El Caballero de la Noche", "Tiempos Violentos", "Forrest Gump",
+            "El Señor de los Anillos: El Retorno del Rey", "La Lista de Schindler", "Matrix", "El Rey León", "Titanic",
+            "Gladiador", "Star Wars: Una Nueva Esperanza", "Volver al Futuro", "Indiana Jones y los Cazadores del Arca Perdida", "Parque Jurásico",
+            "E.T. el Extraterrestre", "Casablanca", "Lo que el Viento se Llevó", "El Mago de Oz", "Psicosis",
+            "El Silencio de los Inocentes", "Buenos Muchachos", "Apocalipsis Ahora", "Blade Runner",
+            "Alien: El Octavo Pasajero", "Terminator 2: El Juicio Final", "Rescatando al Soldado Ryan", "Corazón Valiente", "Rocky",
+            "Amelie", "Ciudad de Dios", "El Viaje de Chihiro", "La Vida es Bella", "Cinema Paradiso",
+            "El Perfecto Asesino", "Seven", "El Club de la Pelea", "Interestelar", "El Origen", 
+            "El Gran Hotel Budapest", "Whiplash: Música y Obsesión", "Mad Max: Furia en el Camino", "Coco", "Spider-Man: Un Nuevo Universo",
+            "Parásitos", "Guasón", "Los Vengadores: Endgame", "Bohemian Rhapsody", "La La Land: Ciudad de Sueños",
+            "El Secreto de sus Ojos", "Relatos Salvajes", "Nueve Reinas", "El Hijo de la Novia", "Esperando la Carroza",
+            "Toy Story", "Up: Una Aventura de Altura", "Wall-E", "Intensa-Mente", "Ratatouille",
+            "El Laberinto del Fauno", "Amores Perros", "Y tu Mamá También", "Roma", "Diarios de Motocicleta",
+            "El Pianista", "El Discurso del Rey", "Argo", "Birdman", "Luz de Luna", 
+            "En Primera Plana", "Green Book: Una Amistad sin Fronteras", "Nomadland", "Todo en Todas Partes al Mismo Tiempo", "El Irlandés",
+            "Historia de un Matrimonio", "Jojo Rabbit", "Pequeña Miss Sunshine", "Eterno Resplandor de una Mente sin Recuerdos", "Perdidos en Tokio", 
+            "Ella", "Ex Máquina", "La Llegada", "Duna", "El Proyecto Adam",
+            "No Mires Arriba", "El Poder del Perro", "CODA: Señales del Corazón", "Belfast", "Licorice Pizza",
+            "Amor sin Barreras", "Cruella", "Encanto", "Luca", "Raya y el Último Dragón",
+            "Soul", "Unidos", "Frozen II", "Cómo Entrenar a tu Dragón 3", "Mi Villano Favorito",
+            "Shrek", "Kung Fu Panda", "Madagascar", "La Era de Hielo", "Buscando a Nemo",
+            "Los Increíbles", "Monsters, Inc.", "Harry Potter y la Piedra Filosofal", "Harry Potter y la Cámara Secreta", "Harry Potter y el Prisionero de Azkaban",
+            "Harry Potter y el Cáliz de Fuego", "Harry Potter y la Orden del Fénix", "Harry Potter y el Misterio del Príncipe", "Harry Potter y las Reliquias de la Muerte - Parte 1", "Harry Potter y las Reliquias de la Muerte - Parte 2",
+            "Piratas del Caribe: La Maldición del Perla Negra", "Piratas del Caribe: El Cofre de la Muerte", "Piratas del Caribe: En el Fin del Mundo", "Piratas del Caribe: Navegando en Aguas Misteriosas", "Piratas del Caribe: La Venganza de Salazar",
+            "Misión Imposible", "Misión Imposible 2", "Misión Imposible 3", "Misión Imposible: Protocolo Fantasma", "Misión Imposible: Nación Secreta",
+            "Misión Imposible: Repercusión", "Rápido y Furioso", "Más Rápido, Más Furioso", "Rápido y Furioso: Reto Tokio", "Rápidos y Furiosos",
+            "Rápidos y Furiosos 5in Control", "Rápidos y Furiosos 6", "Rápidos y Furiosos 7", "Rápidos y Furiosos 8", "Rápidos y Furiosos 9",
+            "John Wick", "John Wick 2: Un Nuevo Día para Matar", "John Wick 3: Parabellum", "007: Casino Royale", "007: Quantum",
+            "007: Operación Skyfall", "007: Spectre", "007: Sin Tiempo para Morir", "El Código Da Vinci", "Ángeles y Demonios",
+            "Inferno", "Transformers", "Transformers: La Venganza de los Caídos", "Transformers: El Lado Oscuro de la Luna", "Transformers: La Era de la Extinción",
+            "Transformers: El Último Caballero", "Bumblebee", "Godzilla", "Kong: La Isla Calavera", "Godzilla: Rey de los Monstruos",
+            "Godzilla vs. Kong", "King Kong", "El Planeta de los Simios: (R)Evolución", "El Planeta de los Simios: Confrontación", "El Planeta de los Simios: La Guerra",
+            "Soy Leyenda", "Guerra Mundial Z", "Un Lugar en Silencio", "Un Lugar en Silencio Parte II", "El Conjuro",
+            "El Conjuro 2", "El Conjuro 3: El Diablo me Obligó a Hacerlo", "Annabelle", "Annabelle: Creación", "Annabelle Vuelve a Casa",
+            "La Monja", "It (Eso)", "It (Eso): Capítulo Dos", "Doctor Sueño", "El Resplandor",
+            "El Exorcista", "La Profecía", "Pesadilla en la Calle Elm", "Viernes 13", "Halloween",
+            "Chucky: El Muñeco Diabólico", "Sexto Sentido", "Los Otros", "El Orfanato", "Rec",
+            "La Llamada", "Destino Final", "Actividad Paranormal", "La Noche del Demonio", 
+            "Siniestro", "Fragmentado", "Glass", "El Protegido", "Nosotros", "¡Huye!",
+            "Babadook", "El Legado del Diablo", "Midsommar: El Terror no Espera la Noche", "La Bruja", "El Faro",
+            "Un Cuento Chino", "Truman", "Dolor y Gloria", "Julieta", "La Piel que Habito",
+            "Hable con Ella", "Todo Sobre mi Madre", "Volver", "Mar Adentro", "Tesis",
+            "Abre los Ojos", "Los Amantes del Círculo Polar", "Lucía y el Sexo", "Biutiful", "Contratiempo",
+            "El Cuerpo", "Durante la Tormenta", "El Guardián Invisible", "Legado en los Huesos", "Ofrenda a la Tormenta",
+            "La Trinchera Infinita", "Mientras Dure la Guerra", "Madre", "Verónica", "El Hoyo",
+            "Bajocero", "Hogar", "Voces", "No Matarás", "Quien a Hierro Mata",
+            "Diecisiete", "Ventajas de Viajar en Tren", "Adiós", "Intemperie", "El Silencio de la Ciudad Blanca",
+            "El Verano que Vivimos", "Malasaña 32", "Orígenes Secretos", "Explota Explota", "Padre no Hay Más que Uno",
+            "Padre no Hay Más que Uno 2: La Llegada de la Suegra", "Superlópez", "Lo Dejo Cuando Quiera", "Si Yo Fuera Rico", "Perdiendo el Este",
+            "Ocho Apellidos Vascos", "Ocho Apellidos Catalanes", "El Mejor Verano de mi Vida", "Campeones",
+            "Perfectos Desconocidos", "Klaus", "Buñuel en el Laberinto de las Tortugas", "Un Monstruo Viene a Verme", "Lo Imposible",
+            "Palmeras en la Nieve", "Tres Metros Sobre el Cielo", "Tengo Ganas de Ti", "Perdona si te Llamo Amor", "El Club de los Incomprendidos",
+            "A Través de mi Ventana", "Culpa Mía", "El Bar", "La Influencia", "El Practicante",
+            "Cuando los Ángeles Duermen", "Tu Hijo", "La Sombra de la Ley", "El Fotógrafo de Mauthausen", "7 Años",
+            "Fe de Etarras", "Thi Mai, Rumbo a Vietnam", "Toc Toc", "Villaviciosa de al Lado", "Es por tu Bien",
+            "Señor, Dame Paciencia", "Kiki, el Amor se Hace", "Nuestros Amantes", "Gente que Viene y Bah", "Las Leyes de la Termodinámica",
+            "El Ciudadano Ilustre", "Mi Obra Maestra", "El Cuento de las Comadrejas", "La Odisea de los Giles", "El Robo del Siglo",
+            "Argentina, 1985", "El Ángel", "El Clan", "Carancho", "Elefante Blanco",
+            "Medianeras", "Granizo", "Hoy se Arregla el Mundo", "La Misma Sangre",
+            "El Prófugo", "Crímenes de Familia", "La Corazonada", "Así Habló el Cambista", "Los Sonámbulos",
+            "Zama", "La Quietud", "Rojo", "Joel", "Alanis",
+            "El Motoarrebatador", "El Potro, lo Mejor del Amor", "Gilda, no me Arrepiento de este Amor", "Wakolda", "Infancia Clandestina",
+            "El Estudiante", "Un Novio para mi Mujer", "Tiempo de Valientes", "Luna de Avellaneda", "Kamchatka",
+            "Historias Mínimas", "Plata Quemada", "El Aura", "Hombre Mirando al Sudeste",
+            "La Historia Oficial", "Camila", "La Tregua", "El Dependiente", "La Patagonia Rebelde",
+            "Martín (Hache)", "Un Lugar en el Mundo", "Pizza, Birra, Faso", "Mundo Grúa", "Bolivia",
+            "Silvia Prieto", "La Ciénaga", "La Niña Santa", "El Abrazo Partido", "Whisky Romeo Zulu",
+            "El Fondo del Mar", "El Perro", "Derecho de Familia", "XXY", "El Pasado",
+            "Leonera", "Viudas", "El Último Elvis", "Días de Vinilo", "Vino para Robar",
+            "Papeles en el Viento", "Me Casé con un Boludo", "Permitidos", "Mamá se Fue de Viaje", "El Fútbol o Yo",
+            "Re Loca", "Animal", "4x4", "La Noche de 12 Años", "Memorias del Calabozo",
+            "Togo", "El Gerente", "Blondi", "Cuando Acecha la Maldad", "Puan",
+            "Los Delincuentes", "El Rapto", "No Descansarás", "Temas Propios", "El Castigo",
+            "Misántropo", "Asfixiados", "Empieza el Baile", "Desconectada", "Legítima Defensa",
+            "Matrimillas", "El Suplente", "30 Noches con mi Ex", "Las Rojas", "Ecos de un Crimen",
+            "Cato", "Yo, Adolescente", "La Gallina Turuleca", "El Retiro",
+            "Bruja", "El Kiosco", "Bañeros 5: Lentos y Cargosos", "No Soy tu Mami", "La Panelista",
+            "Corazón Loco", "El Cuaderno de Tomy", "Crónica de una Fuga", "El Hombre de al Lado", "Sin Hijos",
+            "Abzurdah", "El Hilo Rojo", "Los que Aman Odian", "Acusada", "La Cordillera",
+            "Nieve Negra", "Al Final del Túnel", "Kóblic", "Inseparables",
+            "Relatos Salvajes (segmento: Bombita)", "Relatos Salvajes (segmento: El más fuerte)", "Relatos Salvajes (segmento: Las Ratas)",
+            "Relatos Salvajes (segmento: La Propuesta)", "Relatos Salvajes (segmento: Pasternak)", "Relatos Salvajes (segmento: Hasta que la muerte nos separe)",
+            "El Secreto de sus Ojos (Caso Morales)", "Nueve Reinas (Estafa estampitas)",
+            "Esperando la Carroza (Drama familiar cómico)", "Tiempo de Valientes (Psicólogo y Policía)", "Un Novio para mi Mujer (Contratar seductor)",
+            "El Hijo de la Novia (Alzheimer y boda)", "Luna de Avellaneda (Club de barrio)",
+            "El Mismo Amor, la Misma Lluvia", "Caballos Salvajes", "Cenizas del Paraíso", "Sol de Otoño", "La Fuga",
+            "Vivir Mata", "Sexo, Pudor y Lágrimas", "Perfume de Violetas", "Temporada de Patos", "Matando Cabos",
+            "Conejo en la Luna", "Arráncame la Vida", "El Infierno", "La Dictadura Perfecta", "Cantinflas",
+            "No se Aceptan Devoluciones", "Nosotros los Nobles", "Mirreyes contra Godínez",
+            "Cindy la Regia", "Guadalupe Reyes", "Como Caído del Cielo", "Ahí te Encargo", "Chicuarotes",
+            "Nuevo Orden", "Sin Señas Particulares", "Las Niñas Bien", "La Camarista", "Museo",
+            "Güeros", "Heli", "Miss Bala", "Después de Lucía", "Luz Silenciosa",
+            "El Violín", "Batalla en el Cielo", "Japón", "Crónicas", "Nicotina",
+            "Kilómetro 31", "Hasta el Viento Tiene Miedo", "Veneno para las Hadas", "Macario", "El Ángel Exterminador",
+            "Los Olvidados", "Viridiana", "Nazarín", "Simón del Desierto", "Ensayo de un Crimen",
+            "Él", "Subida al Cielo", "La Ilusión Viaja en Tranvía", "El Bruto", "Susana",
+            "Una Mujer sin Amor", "Doña Bárbara", "María Candelaria", "Flor Silvestre", "Enamorada",
+            "Salón México", "Aventurera", "Distinto Amanecer", "Campeón sin Corona", "Nosotros los Pobres",
+            "Ustedes los Ricos", "Pepe el Toro", "La Oveja Negra", "No Desearás la Mujer de tu Hijo", "El Rey del Barrio",
+            "El Revoltoso", "El Ceniciento", "Escuela de Vagabundos", "El Inocente", "Tizoc: Amor Indio",
+            "Dos Tipos de Cuidado", "Los Tres Huastecos", "Los Tres García", "Vuelven los García", "Angelitos Negros",
+            "El Gran Calavera", "La Tercera Palabra", "Mecánica Nacional", "El Lugar sin Límites", "Canoa",
+            "Los Albañiles", "El Apando", "Las Poquianchis", "Rojo Amanecer", "Como Agua para Chocolate",
+            "Cronos", "El Callejón de los Milagros", "Profundo Carmesí", "La Ley de Herodes", "Todo el Poder",
+            "Atlético San Pancho", "Amar te Duele", "El Tigre de Santa Julia", "Hombre en Llamas", "Zapata, el Sueño del Héroe",
+            "Voces Inocentes", "El Crimen del Padre Amaro", "Babel", "Rudo y Cursi", "Salvando al Soldado Pérez",
+            "Pastorela", "Colosio: El Asesinato", "Gloria", "600 Millas", "Desierto",
+            "La Región Salvaje", "Las Tinieblas", "Vuelven", "Belzebuth", "Perdidos en la Noche",
+            "El Baile de los 41", "Mano de Obra", "Esto no es Berlín", "Cómprame un Revólver", "La Libertad del Diablo",
+            "Tempestad", "Bellas de Noche", "Plaza de la Soledad", "La Nana", "Gloria (Chile)",
+            "Una Mujer Fantástica", "No", "El Club", "Neruda", "Tony Manero",
+            "Post Mortem", "Machuca", "Subterra", "Sexo con Amor", "Stefan v/s Kramer",
+            "Sin Filtro", "Qué Pena tu Vida", "Qué Pena tu Boda", "Qué Pena tu Familia", "El Chacotero Sentimental",
+            "Historias de Fútbol", "El Regalo", "Gatos Viejos", "Violeta se Fue a los Cielos", "El Bosque de Karadima",
+            "Taxi para Tres", "Fuga (Chile)", "Mi Mejor Enemigo", "Mala Junta", "Rara",
+            "Ema", "Nadie Sabe que Estoy Aquí", "Tengo Miedo Torero", "Pacto de Fuga", "El Agente Topo",
+            "Algunas Bestias", "Blanco en Blanco", "Mis Hermanos Sueñan Despiertos", "La Verónica", "1976 (Chile)",
+            "El Conde", "Los Colonos", "Punto de Encuentro", "La Memoria del Agua", "Araña",
+            "La Cordillera de los Sueños", "El Cielo Está Rojo", "Matar a Pinochet", "Ausencia", "Aquí no ha Pasado Nada",
+            "Jesús", "Tarde para Morir Joven", "Perro Bomba", "El Hombre del Futuro", "Vendrá la Muerte y Tendrá tus Ojos",
+            "La Mirada Incendiada", "Inmersión", "Fiebre", "Proyecto Fantasma", "Brujería",
+            "El Vacío", "La Práctica", "Allanamiento", "Penal Cordillera", "Una Luz Negra",
+            "Estación Central", "Tropa de Élite", "Tropa de Élite 2: El Enemigo Ahora es Otro", "Ciudad de Dios: 10 Años Después", "Autobús 174",
+            "Pixote: La Ley del Más Débil", "Doña Flor y sus Dos Maridos", "El Pagador de Promesas", "Vidas Secas", "Dios y el Diablo en la Tierra del Sol",
+            "Tierra en Trance", "Macunaíma", "Bye Bye Brasil", "El Beso de la Mujer Araña", "Yo Sé que te Voy a Amar",
+            "Abril Despedazado", "Carandiru", "El Hombre que Copiaba", "El Año que mis Padres se Fueron de Vacaciones", "Línea de Pase",
+            "El Payaso", "¿A Qué Hora Vuelve Ella?", "Aquarius", "Bacurau", "Marighella",
+            "Al Filo de la Democracia", "Bicho de Sete Cabezas", "Estómago", "Narradores de Javé", "La Ostra y el Viento",
+            "Labranza Arcaica", "Madame Satán", "El Invasor", "Mango Amarillo", "Cine, Aspirinas y Buitres",
+            "El Cielo de Suely", "Bajío de las Bestias", "Tatuaje", "Playa del Futuro", "Buey Neón",
+            "El Sonido Alrededor", "Casa Grande", "Madre Solo Hay Una", "Las Buenas Maneras", "Divino Amor",
+            "La Vida Invisible de Eurídice Gusmão", "7 Prisioneros", "Marte Uno", "Medida Provisional", "Pureza",
+            "Depredador", "Alien vs. Depredador", "Depredador 2", "Depredadores", "El Depredador", "La Presa", "High School Musical"
+        ];
+
+
+        // --- DOM ELEMENTS ---
+        const initialScreen = document.getElementById('initialScreen');
+        const openSetupModalBtn = document.getElementById('openSetupModalBtn');
+        const continuePreviousGameBtn = document.getElementById('continuePreviousGameBtn');
+        
+        const setupModalPlayerNames = document.getElementById('setupModalPlayerNames');
+        const setupModalTeamsTime = document.getElementById('setupModalTeamsTime');
+        const setupModalRounds = document.getElementById('setupModalRounds');
+
+        const gameScreen = document.getElementById('gameScreen');
+        const podiumScreen = document.getElementById('podiumScreen');
+        const askContinueModal = document.getElementById('askContinueModal');
+        const movieModal = document.getElementById('movieModal');
+
+        const playerNamesInput = document.getElementById('playerNames');
+        const nextToTeamsBtn = document.getElementById('nextToTeamsBtn');
+        const playerNamesError = document.getElementById('playerNamesError');
+
+        const numTeamsInput = document.getElementById('numTeams');
+        const timePerTurnInput = document.getElementById('timePerTurn');
+        const prevToPlayersBtn = document.getElementById('prevToPlayersBtn');
+        const nextToRoundsBtn = document.getElementById('nextToRoundsBtn');
+        const teamsTimeError = document.getElementById('teamsTimeError');
+
+        const numRoundsInput = document.getElementById('numRounds');
+        const prevToTeamsModalBtn = document.getElementById('prevToTeamsModalBtn'); 
+        const startGameBtn = document.getElementById('startGameBtn'); 
+        const roundsError = document.getElementById('roundsError');
+
+        const currentRoundDisplay = document.getElementById('currentRoundDisplay');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const teamsDisplay = document.getElementById('teamsDisplay');
+        const turnInfo = document.getElementById('turnInfo');
+        const currentTeamTurn = document.getElementById('currentTeamTurn');
+        const currentPlayerActor = document.getElementById('currentPlayerActor');
+        const getMovieBtn = document.getElementById('getMovieBtn'); 
+        
+        const actingSection = document.getElementById('actingSection');
+        const movieToAct = document.getElementById('movieToAct');
+        const startActingBtn = document.getElementById('startActingBtn');
+        
+        const resultSection = document.getElementById('resultSection');
+        const timeUpMessage = document.getElementById('timeUpMessage');
+        const guessedBtn = document.getElementById('guessedBtn');
+        const notGuessedBtn = document.getElementById('notGuessedBtn');
+        const nextTurnInfo = document.getElementById('nextTurnInfo');
+        const nextTeamMessage = document.getElementById('nextTeamMessage');
+
+        const movieModalTitle = document.getElementById('movieModalTitle');
+        const titleChangesLeft = document.getElementById('titleChangesLeft');
+        const changeTitleBtn = document.getElementById('changeTitleBtn');
+        const confirmMovieBtn = document.getElementById('confirmMovieBtn');
+
+        const continueNextRoundBtn = document.getElementById('continueNextRoundBtn');
+        const endGameFromModalBtn = document.getElementById('endGameFromModalBtn');
+        
+        const podiumDisplay = document.getElementById('podiumDisplay');
+        const playAgainBtn = document.getElementById('playAgainBtn');
+
+        let synth; 
+
+
+        // --- LocalStorage Functions ---
+        function saveGame(gameInstance) {
+            if (!gameInstance) return;
+            const gameState = {
+                players: gameInstance.players.map(p => ({ 
+                    id: p.id,
+                    name: p.name,
+                    titleChangesThisRound: p.titleChangesThisRound
+                })),
+                teams: gameInstance.teams.map(t => ({
+                    id: t.id,
+                    name: t.name, // Guardar el nombre completo como "Equipo X"
+                    members: t.members.map(m => m.id), 
+                    score: t.score,
+                    currentPlayerIndex: t.currentPlayerIndex,
+                    accumulatedTime: t.accumulatedTime
+                })),
+                numTeams: gameInstance.numTeams,
+                timePerTurn: gameInstance.timePerTurn,
+                numRounds: gameInstance.numRounds,
+                currentRound: gameInstance.currentRound,
+                currentTeamTurnIndex: gameInstance.currentTeamTurnIndex,
+                teamOrder: gameInstance.teamOrder.map(t => t.id), 
+                moviesAvailable: gameInstance.moviesAvailable,
+                moviesUsedThisGame: gameInstance.moviesUsedThisGame,
+                timeLeft: gameInstance.timeLeft,
+                currentMovieForTurn: gameInstance.currentMovieForTurn,
+                currentActorId: gameInstance.currentActor ? gameInstance.currentActor.id : null,
+                isGameOver: gameInstance.isGameOver,
+                _setupData: setupData // Guardar la configuración original
+            };
+            localStorage.setItem('mimicaGameData', JSON.stringify(gameState));
+            console.log("Partida guardada:", gameState);
+        }
+
+        function loadGame() {
+            const savedJSON = localStorage.getItem('mimicaGameData');
+            if (!savedJSON) return null;
+
+            try {
+                const savedState = JSON.parse(savedJSON);
+                console.log("Partida cargada desde localStorage:", savedState);
+
+                if (savedState._setupData) {
+                    setupData = savedState._setupData;
+                } else { 
+                    setupData.playerNames = savedState.players.map(p => p.name);
+                    setupData.numTeams = savedState.numTeams;
+                    setupData.timePerTurn = savedState.timePerTurn;
+                    setupData.numRounds = savedState.numRounds;
+                }
+                
+                // Usar los datos de setupData (ya sea cargados o reconstruidos) para el constructor
+                const loadedGame = new Game(setupData.playerNames, setupData.numTeams, setupData.timePerTurn, setupData.numRounds);
+
+                loadedGame.players = savedState.players.map(pData => {
+                    const player = new Player(pData.id, pData.name);
+                    player.titleChangesThisRound = pData.titleChangesThisRound;
+                    return player;
+                });
+
+                const playerMap = new Map(loadedGame.players.map(p => [p.id, p]));
+                loadedGame.teams = savedState.teams.map(tData => {
+                    // El constructor de Team espera el número, no "Equipo X"
+                    const teamNameNumber = tData.name.replace('Equipo ', '');
+                    const team = new Team(tData.id, teamNameNumber);
+                    team.score = tData.score;
+                    team.currentPlayerIndex = tData.currentPlayerIndex;
+                    team.accumulatedTime = tData.accumulatedTime;
+                    team.members = tData.members.map(memberId => playerMap.get(memberId)).filter(p => p);
+                    return team;
+                });
+                
+                const teamMap = new Map(loadedGame.teams.map(t => [t.id, t]));
+                loadedGame.teamOrder = savedState.teamOrder.map(teamId => teamMap.get(teamId)).filter(t => t);
+
+                loadedGame.currentRound = savedState.currentRound;
+                loadedGame.currentTeamTurnIndex = savedState.currentTeamTurnIndex;
+                loadedGame.moviesAvailable = savedState.moviesAvailable;
+                loadedGame.moviesUsedThisGame = savedState.moviesUsedThisGame;
+                loadedGame.timeLeft = savedState.timeLeft;
+                loadedGame.currentMovieForTurn = savedState.currentMovieForTurn;
+                loadedGame.isGameOver = savedState.isGameOver;
+
+                if (savedState.currentActorId) {
+                    loadedGame.currentActor = playerMap.get(savedState.currentActorId);
+                } else {
+                    loadedGame.currentActor = null;
+                }
+                return loadedGame;
+            } catch (error) {
+                console.error("Error al cargar la partida guardada:", error);
+                localStorage.removeItem('mimicaGameData'); // Limpiar datos corruptos
+                return null;
+            }
+        }
+
+        function clearSavedGame() {
+            localStorage.removeItem('mimicaGameData');
+            console.log("Partida guardada eliminada.");
+            continuePreviousGameBtn.classList.add('hidden'); // Ocultar botón de continuar
+        }
+
+
+        // --- GAME CLASSES ---
+        class Player {
+            constructor(id, name) {
+                this.id = id;
+                this.name = name;
+                this.titleChangesThisRound = 0; 
+            }
+        }
+
+        class Team {
+            constructor(id, name) { // name es el número del equipo
+                this.id = id;
+                this.name = `Equipo ${name}`; // Se construye el nombre completo aquí
+                this.members = [];
+                this.score = 0;
+                this.currentPlayerIndex = 0; 
+                this.accumulatedTime = 0; 
+            }
+
+            addMember(player) {
+                this.members.push(player);
+            }
+
+            getNextActor() {
+                if (this.members.length === 0) return null;
+                const actor = this.members[this.currentPlayerIndex];
+                this.currentPlayerIndex = (this.currentPlayerIndex + 1) % this.members.length;
+                return actor;
+            }
+
+            addPoints(points) {
+                this.score += points;
+            }
+
+            addAccumulatedTime(time) { 
+                this.accumulatedTime += time;
+            }
+        }
+        
+        class Game {
+            constructor(playerNames, numTeams, timePerTurn, numRounds) {
+                this.players = playerNames.map((name, index) => new Player(`p${index}`, name.trim()));
+                this.numTeams = numTeams; 
+                this.timePerTurn = timePerTurn; 
+                this.numRounds = numRounds; 
+                this.teams = [];
+                this.currentRound = 0;
+                this.currentTeamTurnIndex = 0;
+                this.teamOrder = []; 
+                this.moviesAvailable = [...movieTitles];
+                this.moviesUsedThisGame = []; 
+                this.timerInterval = null;
+                this.timeLeft = 0;
+                this.currentMovieForTurn = null; 
+                this.currentActor = null;
+                this.isGameOver = false;
+
+                this._createTeams();
+                this._assignPlayersToTeams();
+                this._determineTeamOrder();
+            }
+
+            _createTeams() {
+                for (let i = 0; i < this.numTeams; i++) {
+                    this.teams.push(new Team(`t${i}`, i + 1));
+                }
+            }
+
+            _assignPlayersToTeams() {
+                let shuffledPlayers = [...this.players].sort(() => 0.5 - Math.random());
+                let teamIndex = 0;
+                shuffledPlayers.forEach(player => {
+                    this.teams[teamIndex].addMember(player);
+                    teamIndex = (teamIndex + 1) % this.numTeams;
+                });
+            }
+
+            _determineTeamOrder() {
+                this.teamOrder = [...this.teams].sort(() => 0.5 - Math.random());
+                this.currentTeamTurnIndex = 0;
+            }
+
+            startNewRound() {
+                this.currentRound++;
+                this.players.forEach(player => player.titleChangesThisRound = 0);
+                this.currentTeamTurnIndex = 0; 
+                this.startTurn();
+                saveGame(this); // Guardar al iniciar nueva ronda
+            }
+
+            getCurrentTeam() {
+                return this.teamOrder[this.currentTeamTurnIndex];
+            }
+            
+            startTurn() {
+                if (this.isGameOver) return;
+
+                const team = this.getCurrentTeam();
+                this.currentActor = team.getNextActor();
+                if (!this.currentActor) { 
+                    console.error("Error: No actor found for the current team.");
+                    this.endGame(); 
+                    return;
+                }
+                this.timeLeft = this.timePerTurn;
+                this.currentMovieForTurn = null; 
+                
+                updateGameUI();
+                showScreen('gameScreen'); 
+                getMovieBtn.classList.remove('hidden'); 
+                actingSection.classList.add('hidden');
+                resultSection.classList.add('hidden');
+                nextTurnInfo.classList.add('hidden');
+                timeUpMessage.classList.add('hidden');
+                startActingBtn.classList.remove('hidden'); 
+                // No guardar aquí, se guarda al obtener película o procesar resultado
+            }
+
+            selectMovieForTurn() {
+                if (this.moviesAvailable.length === 0) {
+                    console.log("Replenishing movies. All unique titles used.");
+                    this.moviesAvailable = [...this.moviesUsedThisGame];
+                    this.moviesUsedThisGame = [];
+                    if (this.moviesAvailable.length === 0) { 
+                        const noMoviesModal = document.createElement('div');
+                        noMoviesModal.className = 'modal';
+                        noMoviesModal.innerHTML = `<div class="modal-content"><p>¡Se han acabado todas las películas disponibles!</p><button class="btn btn-primary mt-4" onclick="this.parentElement.parentElement.remove()">OK</button></div>`;
+                        document.body.appendChild(noMoviesModal);
+                        this.endGame(); 
+                        return null;
+                    }
+                }
+                const randomIndex = Math.floor(Math.random() * this.moviesAvailable.length);
+                this.currentMovieForTurn = this.moviesAvailable.splice(randomIndex, 1)[0];
+                this.moviesUsedThisGame.push(this.currentMovieForTurn); 
+                saveGame(this); // Guardar después de seleccionar una película
+                return this.currentMovieForTurn;
+            }
+            
+            changeTitleForActor() {
+                if (!this.currentActor || this.currentActor.titleChangesThisRound >= 2) {
+                    return false; 
+                }
+                this.currentActor.titleChangesThisRound++;
+                this.selectMovieForTurn(); // Esto ya llama a saveGame
+                return true; 
+            }
+
+
+            startTimer() {
+                timerDisplay.textContent = formatTime(this.timeLeft);
+                this.timerInterval = setInterval(() => {
+                    this.timeLeft--;
+                    timerDisplay.textContent = formatTime(this.timeLeft);
+                    if (this.timeLeft <= 0) {
+                        this.endTurnByTime();
+                    }
+                }, 1000);
+            }
+
+            stopTimer() {
+                clearInterval(this.timerInterval);
+            }
+
+            endTurnByTime() {
+                this.stopTimer();
+                playAlarmSound();
+                timeUpMessage.classList.remove('hidden');
+                resultSection.classList.remove('hidden'); 
+                actingSection.classList.add('hidden'); 
+                // No guardar aquí, se guarda en processTurnResult
+            }
+
+            processTurnResult(guessed) {
+                const timeBeforeStop = this.timeLeft; 
+                this.stopTimer();
+
+                if (guessed) {
+                    this.getCurrentTeam().addPoints(1);
+                    if (timeBeforeStop > 0) { 
+                        this.getCurrentTeam().addAccumulatedTime(timeBeforeStop);
+                    }
+                }
+                updateTeamScoresUI(); 
+                
+                actingSection.classList.add('hidden');
+                resultSection.classList.add('hidden');
+                timeUpMessage.classList.add('hidden');
+                
+                saveGame(this); // Guardar después de procesar el resultado
+
+                this.currentTeamTurnIndex++;
+                if (this.currentTeamTurnIndex >= this.teamOrder.length) { 
+                    this.currentTeamTurnIndex = 0; 
+                    if (this.numRounds > 0 && this.currentRound >= this.numRounds) {
+                        this.endGame(); 
+                    } else if (this.numRounds === 0) { 
+                        showScreen('askContinueModal'); 
+                    } else {
+                        this.startNewRound(); // Esto ya llama a saveGame
+                    }
+                } else {
+                    const nextTeam = this.getCurrentTeam();
+                    nextTeamMessage.textContent = `A continuación: ${nextTeam.name}. ¡Prepárense!`;
+                    nextTurnInfo.classList.remove('hidden');
+                    setTimeout(() => {
+                        nextTurnInfo.classList.add('hidden');
+                        this.startTurn();
+                    }, 3000); 
+                }
+            }
+
+            endGame() {
+                this.isGameOver = true;
+                this.stopTimer();
+                showPodium();
+                showScreen('podiumScreen');
+                clearSavedGame(); // Limpiar al finalizar la partida
+            }
+        }
+
+        // --- UI FUNCTIONS ---
+        function showScreen(screenId) {
+            [initialScreen, setupModalPlayerNames, setupModalTeamsTime, setupModalRounds, gameScreen, podiumScreen, askContinueModal, movieModal].forEach(s => {
+                if (s) s.classList.add('hidden');
+            });
+            const screenToShow = document.getElementById(screenId);
+            if (screenToShow) {
+                screenToShow.classList.remove('hidden');
+            }
+        }
+
+        function updateGameUI() {
+            if (!game || !game.getCurrentTeam() || !game.currentActor) {
+                 console.warn("Game, current team, or current actor not ready for UI update.");
+                 return;
+            }
+            currentRoundDisplay.textContent = `Ronda ${game.currentRound} ${game.numRounds > 0 ? '/ ' + game.numRounds : ''}`;
+            timerDisplay.textContent = formatTime(game.timeLeft);
+            
+            const currentTeam = game.getCurrentTeam();
+            currentTeamTurn.textContent = `Turno del ${currentTeam.name}`;
+            currentPlayerActor.textContent = `Actor: ${game.currentActor.name}`;
+            
+            updateTeamScoresUI();
+        }
+
+        function updateTeamScoresUI() {
+            teamsDisplay.innerHTML = '';
+            if (!game || !game.teamOrder) return;
+            game.teamOrder.forEach(team => { 
+                const teamCard = document.createElement('div');
+                teamCard.className = 'team-card p-3 rounded-lg shadow'; 
+                if (game.getCurrentTeam() && team.id === game.getCurrentTeam().id && !game.isGameOver) {
+                    teamCard.classList.add('current-team-card');
+                }
+                
+                let membersList = team.members.map(m => m.name).join(', ');
+                if (membersList.length > 40) membersList = membersList.substring(0, 37) + "...";
+
+                teamCard.innerHTML = `
+                    <h4 class="text-md sm:text-lg font-semibold">${team.name}</h4>
+                    <p class="text-xl sm:text-2xl font-bold my-1">${team.score} Puntos</p>
+                    <p class="text-xs">Miembros: ${membersList}</p>
+                    <p class="text-xs" style="color: var(--vintage-text-light);">Tiempo Acumulado: ${team.accumulatedTime}s</p> 
+                    ${game.getCurrentTeam() && team.id === game.getCurrentTeam().id && game.currentActor && !game.isGameOver ? `<p class="text-xs sm:text-sm mt-1" style="color: var(--vintage-yellow);">Actuando: ${game.currentActor.name}</p>` : ''}
+                `;
+                teamsDisplay.appendChild(teamCard);
+            });
+        }
+        
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+
+        function showPodium() {
+            podiumDisplay.innerHTML = '';
+            if (!game || !game.teams) return;
+            
+            const sortedTeams = [...game.teams].sort((a, b) => {
+                if (b.score === a.score) { 
+                    return b.accumulatedTime - a.accumulatedTime; 
+                }
+                return b.score - a.score; 
+            });
+            
+            const podiumEmoji = ['🥇', '🥈', '🥉'];
+
+            sortedTeams.forEach((team, index) => {
+                const podiumEntry = document.createElement('div');
+                let emoji = index < 3 ? podiumEmoji[index] : `${index + 1}.`;
+                let podiumStyle = '';
+
+                if (index === 0) podiumStyle = 'background-color: #DAA520; color: white;'; 
+                else if (index === 1) podiumStyle = 'background-color: #C0C0C0; color: var(--vintage-text-dark);'; 
+                else if (index === 2) podiumStyle = 'background-color: #B87333; color: white;'; 
+                else podiumStyle = 'background-color: #a8a29e; color: var(--vintage-text-dark);'; 
+
+                podiumEntry.className = `p-3 rounded-lg shadow-lg flex items-center justify-between`; 
+                podiumEntry.style = podiumStyle;
+                podiumEntry.innerHTML = `
+                    <div class="flex items-center">
+                        <span class="text-2xl sm:text-3xl mr-3">${emoji}</span>
+                        <div>
+                            <h3 class="text-lg sm:text-xl font-semibold">${team.name}</h3>
+                            <p class="text-xs sm:text-sm">Miembros: ${team.members.map(m => m.name).join(', ')}</p>
+                            <p class="text-xs sm:text-sm" style="${index === 1 || index > 2 ? 'color: var(--vintage-text-light);' : 'color: inherit;'}">Tiempo Acumulado: ${team.accumulatedTime}s</p>
+                        </div>
+                    </div>
+                    <div class="text-xl sm:text-2xl font-bold">${team.score} Puntos</div>
+                `;
+                podiumDisplay.appendChild(podiumEntry);
+            });
+        }
+        
+        function playAlarmSound() {
+            if (typeof Tone !== 'undefined') {
+                if (!synth) { 
+                    synth = new Tone.Synth({
+                        oscillator: { type: "sine" },
+                        envelope: { attack: 0.005, decay: 0.1, sustain: 0.3, release: 1 }
+                    }).toDestination();
+                }
+                const now = Tone.now();
+                synth.triggerAttackRelease("C5", "8n", now);
+                synth.triggerAttackRelease("C5", "8n", now + 0.2);
+                synth.triggerAttackRelease("C5", "8n", now + 0.4);
+            } else {
+                console.warn("Tone.js not loaded, cannot play alarm sound.");
+            }
+        }
+
+        function updateMovieModalUI() {
+            if (!game || !game.currentActor || !game.currentMovieForTurn) return;
+            movieModalTitle.textContent = game.currentMovieForTurn;
+            const changesMade = game.currentActor.titleChangesThisRound;
+            const changesRemaining = 2 - changesMade;
+            titleChangesLeft.textContent = `Cambios restantes esta ronda: ${changesRemaining}`;
+            changeTitleBtn.disabled = changesRemaining <= 0;
+        }
+
+        // --- SETUP MODAL FLOW ---
+        openSetupModalBtn.addEventListener('click', () => {
+            clearSavedGame(); // Limpiar juego anterior al iniciar nueva configuración
+            showScreen('setupModalPlayerNames');
+        });
+
+        nextToTeamsBtn.addEventListener('click', () => {
+            const names = playerNamesInput.value.split(',').map(name => name.trim()).filter(name => name);
+            playerNamesError.textContent = '';
+            if (names.length < 2) { 
+                playerNamesError.textContent = 'Se necesitan al menos 2 jugadores.';
+                return;
+            }
+            setupData.playerNames = names;
+            showScreen('setupModalTeamsTime');
+        });
+
+        prevToPlayersBtn.addEventListener('click', () => {
+            showScreen('setupModalPlayerNames');
+        });
+
+        nextToRoundsBtn.addEventListener('click', () => {
+            const numTeams = parseInt(numTeamsInput.value);
+            const timePerTurn = parseInt(timePerTurnInput.value);
+            teamsTimeError.textContent = '';
+
+            if (numTeams < 2) {
+                teamsTimeError.textContent = 'Se necesitan al menos 2 equipos.';
+                return;
+            }
+            if (setupData.playerNames.length < numTeams) {
+                teamsTimeError.textContent = 'Debe haber suficientes jugadores para la cantidad de equipos (jugadores ≥ equipos).';
+                return;
+            }
+            if (timePerTurn < 10) {
+                teamsTimeError.textContent = 'El tiempo por turno debe ser de al menos 10 segundos.';
+                return;
+            }
+            setupData.numTeams = numTeams;
+            setupData.timePerTurn = timePerTurn;
+            showScreen('setupModalRounds');
+        });
+        
+        prevToTeamsModalBtn.addEventListener('click', () => { 
+            showScreen('setupModalTeamsTime');
+        });
+
+        startGameBtn.addEventListener('click', () => {
+            let rawRoundsValue = numRoundsInput.value;
+            let parsedRounds = parseInt(rawRoundsValue);
+            roundsError.textContent = ''; 
+
+            if (isNaN(parsedRounds) || parsedRounds < 0) {
+                parsedRounds = 0; 
+            }
+            setupData.numRounds = parsedRounds;
+
+            game = new Game(setupData.playerNames, setupData.numTeams, setupData.timePerTurn, setupData.numRounds);
+            game.startNewRound(); // Esto llama a saveGame()
+            showScreen('gameScreen');
+        });
+
+        // --- GAME EVENT LISTENERS ---
+        getMovieBtn.addEventListener('click', () => {
+            if (!game || game.isGameOver || !game.currentActor) return;
+            game.selectMovieForTurn(); // Esto llama a saveGame()
+            updateMovieModalUI();
+            showScreen('movieModal');
+            getMovieBtn.classList.add('hidden'); 
+        });
+        
+        changeTitleBtn.addEventListener('click', () => {
+            if (!game || !game.currentActor || game.currentActor.titleChangesThisRound >= 2) {
+                return; 
+            }
+            game.changeTitleForActor(); // Esto llama a selectMovieForTurn() que a su vez llama a saveGame()
+            updateMovieModalUI(); 
+        });
+
+        confirmMovieBtn.addEventListener('click', () => {
+            if (!game.currentMovieForTurn) {
+                game.selectMovieForTurn(); // Esto llama a saveGame()
+                if(!game.currentMovieForTurn) { 
+                    const noMovieAlert = document.createElement('div');
+                    noMovieAlert.className = 'modal'; 
+                    noMovieAlert.innerHTML = `<div class="modal-content"><p>No se pudo seleccionar una película. Intenta de nuevo.</p><button class="btn btn-primary mt-4" onclick="this.parentElement.parentElement.remove()">OK</button></div>`;
+                    document.body.appendChild(noMovieAlert);
+                    showScreen('gameScreen'); 
+                    getMovieBtn.classList.remove('hidden');
+                    return;
+                }
+            }
+            saveGame(game); // Guardar el estado actual con la película confirmada
+            showScreen('gameScreen'); 
+            actingSection.classList.remove('hidden');
+            movieToAct.textContent = game.currentMovieForTurn; 
+            startActingBtn.classList.remove('hidden'); 
+            resultSection.classList.add('hidden'); 
+        });
+
+        startActingBtn.addEventListener('click', () => {
+            if (!game || game.isGameOver) return;
+            startActingBtn.classList.add('hidden'); 
+            resultSection.classList.remove('hidden'); 
+            timeUpMessage.classList.add('hidden'); 
+            game.startTimer();
+            // No es necesario guardar aquí, el estado importante no ha cambiado significativamente
+        });
+
+        guessedBtn.addEventListener('click', () => {
+            if (!game || game.isGameOver) return;
+            game.processTurnResult(true); // Esto llama a saveGame()
+        });
+
+        notGuessedBtn.addEventListener('click', () => {
+            if (!game || game.isGameOver) return;
+            game.processTurnResult(false); // Esto llama a saveGame()
+        });
+
+        continueNextRoundBtn.addEventListener('click', () => {
+            askContinueModal.classList.add('hidden'); 
+            game.startNewRound(); // Esto llama a saveGame()
+        });
+
+        endGameFromModalBtn.addEventListener('click', () => {
+            askContinueModal.classList.add('hidden'); 
+            game.endGame(); // Esto llama a clearSavedGame()
+        });
+
+        playAgainBtn.addEventListener('click', () => {
+            clearSavedGame(); // Limpiar juego anterior
+            game = null; 
+            setupData = { playerNames: [], numTeams: 2, timePerTurn: 60, numRounds: 0 };
+            playerNamesInput.value = '';
+            numTeamsInput.value = '2';
+            timePerTurnInput.value = '60';
+            numRoundsInput.value = '0';
+            playerNamesError.textContent = '';
+            teamsTimeError.textContent = '';
+            roundsError.textContent = '';
+            
+            showScreen('initialScreen');
+        });
+
+        continuePreviousGameBtn.addEventListener('click', () => {
+            const loadedGameInstance = loadGame();
+            if (loadedGameInstance) {
+                game = loadedGameInstance;
+                updateGameUI(); // Actualizar toda la UI con los datos cargados
+                if (game.isGameOver) {
+                    showPodium();
+                    showScreen('podiumScreen');
+                } else {
+                     showScreen('gameScreen');
+                    // Determinar qué mostrar en gameScreen basado en el estado cargado
+                    if (game.currentMovieForTurn && game.timeLeft === game.timePerTurn) { // Película seleccionada, esperando para actuar
+                        actingSection.classList.remove('hidden');
+                        movieToAct.textContent = game.currentMovieForTurn;
+                        startActingBtn.classList.remove('hidden');
+                        getMovieBtn.classList.add('hidden');
+                    } else if (game.currentMovieForTurn && game.timeLeft < game.timePerTurn && game.timeLeft > 0) { // Actuación en curso
+                        actingSection.classList.remove('hidden');
+                        movieToAct.textContent = game.currentMovieForTurn;
+                        startActingBtn.classList.add('hidden');
+                        resultSection.classList.remove('hidden');
+                        game.startTimer(); // Reanudar timer
+                        getMovieBtn.classList.add('hidden');
+                    } else if (game.currentMovieForTurn && game.timeLeft <= 0) { // Tiempo agotado, esperando resultado
+                        actingSection.classList.add('hidden');
+                        resultSection.classList.remove('hidden');
+                        timeUpMessage.classList.remove('hidden');
+                        getMovieBtn.classList.add('hidden');
+                    } else { // Inicio de turno, necesita obtener película
+                        getMovieBtn.classList.remove('hidden');
+                    }
+                }
+            } else {
+                // No debería pasar si el botón está visible, pero como fallback
+                showScreen('initialScreen'); 
+                continuePreviousGameBtn.classList.add('hidden');
+            }
+        });
+
+
+        // --- INITIALIZATION ---
+        function initializeApp() {
+            const loadedGame = loadGame();
+            if (loadedGame) {
+                continuePreviousGameBtn.classList.remove('hidden');
+            } else {
+                continuePreviousGameBtn.classList.add('hidden');
+            }
+            showScreen('initialScreen');
+        }
+
+        initializeApp();
+
+        document.body.addEventListener('click', async () => {
+            if (typeof Tone !== 'undefined' && Tone.context.state !== 'running') {
+                await Tone.start();
+                console.log("Tone.js AudioContext started.");
+            }
+        }, { once: true });
+    </script>
+</body>
+</html>
