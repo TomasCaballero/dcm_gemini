@@ -67,7 +67,7 @@
             margin-bottom: 0.5rem; 
         }
 
-        h1 {
+        .tituloJuego { 
             font-family: 'Oswald', sans-serif;
             font-size: 5.2rem; 
             line-height: 1; 
@@ -78,14 +78,14 @@
             text-align: center;
             flex-shrink: 0; 
         }
-        h2 {
+        h2 { 
             font-family: 'Montserrat', sans-serif;
             font-weight: 700;
             font-size: 1.75rem; 
             color: var(--vintage-blue);
             margin-bottom: 1rem;
         }
-        h3 {
+        h3 { 
             font-family: 'Montserrat', sans-serif;
             font-weight: 600;
             font-size: 1.3rem; 
@@ -236,9 +236,6 @@
             background-color: rgba(255,255,255,0.5); 
             border: 1px dashed var(--vintage-border);
         }
-        .tituloJuego{
-            font-size: 40px;
-        }
 
     </style>
 </head>
@@ -305,27 +302,28 @@
     </div>
 
     <div id="gameScreen" class="container hidden">
-        <div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-2">
+        <div class="flex flex-col sm:flex-row justify-between items-center mb-2 gap-2">
             <h2 id="currentRoundDisplay" class="text-xl sm:text-2xl">Ronda X</h2>
             <div id="timerDisplay" class="text-2xl sm:text-3xl font-bold">00:00</div>
         </div>
 
-        <div id="teamsDisplay" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-4">
-            </div>
+        <div id="teamsDisplay" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-3">
+            {/* Team cards will be injected here */}
+        </div>
         
-        <div id="turnInfo" class="text-center mb-4 p-4 rounded-lg" style="background-color: rgba(255,255,255,0.05);">
+        <div id="turnInfo" class="text-center mb-3 p-3 rounded-lg" style="background-color: rgba(255,255,255,0.05);">
             <h3 id="currentTeamTurn" class="text-lg sm:text-xl">Turno del Equipo X</h3>
             <p id="currentPlayerActor" class="text-base sm:text-lg">Actor: Jugador Y</p>
             <button id="getMovieBtn" class="btn btn-primary mt-3">Obtener Película</button>
         </div>
         
-        <div id="actingSection" class="text-center mb-4 hidden p-4 rounded-lg" style="background-color: rgba(255,255,255,0.05);">
+        <div id="actingSection" class="text-center mb-3 p-3 rounded-lg hidden" style="background-color: rgba(255,255,255,0.05);">
             <h3 class="text-lg sm:text-xl">Película a actuar:</h3>
             <p id="movieToAct" class="text-xl sm:text-2xl font-semibold my-3 p-3 rounded-md"></p>
             <button id="startActingBtn" class="btn btn-green">¡Comenzar a Actuar!</button>
         </div>
 
-        <div id="resultSection" class="text-center mb-4 hidden p-4 rounded-lg" style="background-color: rgba(255,255,255,0.05);">
+        <div id="resultSection" class="text-center mb-3 p-3 rounded-lg hidden" style="background-color: rgba(255,255,255,0.05);">
             <p id="timeUpMessage" class="text-lg sm:text-xl mb-3 hidden" style="color: var(--vintage-red); font-weight: bold;">¡Tiempo Agotado!</p>
             <p class="mb-3 text-sm sm:text-base">¿El equipo adivinó la película?</p>
             <div class="flex flex-col sm:flex-row justify-center gap-3">
@@ -334,7 +332,7 @@
             </div>
         </div>
         
-        <div id="nextTurnInfo" class="text-center mt-4 hidden p-3 rounded-lg" style="background-color: rgba(87, 127, 146, 0.2);">
+        <div id="nextTurnInfo" class="text-center mt-3 p-2 rounded-lg hidden" style="background-color: rgba(87, 127, 146, 0.2);">
              <p id="nextTeamMessage" class="text-base sm:text-lg" style="color: var(--vintage-cream)"></p>
         </div>
     </div>
@@ -365,7 +363,8 @@
     <div id="podiumScreen" class="container hidden">
         <h2 class="text-center text-2xl sm:text-3xl mb-6">🏆 Podio Final 🏆</h2>
         <div id="podiumDisplay" class="space-y-3">
-            </div>
+            {/* Podium entries will be injected here */}
+        </div>
         <button id="playAgainBtn" class="btn btn-primary w-full mt-6 text-lg py-3">Jugar de Nuevo</button>
     </div>
 
@@ -575,6 +574,8 @@
         const playAgainBtn = document.getElementById('playAgainBtn');
 
         let synth; 
+        let alarmSynth; 
+        let alarmIntervalId = null;
 
 
         // --- LocalStorage Functions ---
@@ -588,7 +589,7 @@
                 })),
                 teams: gameInstance.teams.map(t => ({
                     id: t.id,
-                    name: t.name, // Guardar el nombre completo como "Equipo X"
+                    name: t.name, 
                     members: t.members.map(m => m.id), 
                     score: t.score,
                     currentPlayerIndex: t.currentPlayerIndex,
@@ -606,7 +607,7 @@
                 currentMovieForTurn: gameInstance.currentMovieForTurn,
                 currentActorId: gameInstance.currentActor ? gameInstance.currentActor.id : null,
                 isGameOver: gameInstance.isGameOver,
-                _setupData: setupData // Guardar la configuración original
+                _setupData: setupData 
             };
             localStorage.setItem('mimicaGameData', JSON.stringify(gameState));
             console.log("Partida guardada:", gameState);
@@ -629,7 +630,6 @@
                     setupData.numRounds = savedState.numRounds;
                 }
                 
-                // Usar los datos de setupData (ya sea cargados o reconstruidos) para el constructor
                 const loadedGame = new Game(setupData.playerNames, setupData.numTeams, setupData.timePerTurn, setupData.numRounds);
 
                 loadedGame.players = savedState.players.map(pData => {
@@ -640,7 +640,6 @@
 
                 const playerMap = new Map(loadedGame.players.map(p => [p.id, p]));
                 loadedGame.teams = savedState.teams.map(tData => {
-                    // El constructor de Team espera el número, no "Equipo X"
                     const teamNameNumber = tData.name.replace('Equipo ', '');
                     const team = new Team(tData.id, teamNameNumber);
                     team.score = tData.score;
@@ -669,7 +668,7 @@
                 return loadedGame;
             } catch (error) {
                 console.error("Error al cargar la partida guardada:", error);
-                localStorage.removeItem('mimicaGameData'); // Limpiar datos corruptos
+                localStorage.removeItem('mimicaGameData'); 
                 return null;
             }
         }
@@ -677,7 +676,7 @@
         function clearSavedGame() {
             localStorage.removeItem('mimicaGameData');
             console.log("Partida guardada eliminada.");
-            continuePreviousGameBtn.classList.add('hidden'); // Ocultar botón de continuar
+            continuePreviousGameBtn.classList.add('hidden'); 
         }
 
 
@@ -691,9 +690,9 @@
         }
 
         class Team {
-            constructor(id, name) { // name es el número del equipo
+            constructor(id, name) { 
                 this.id = id;
-                this.name = `Equipo ${name}`; // Se construye el nombre completo aquí
+                this.name = `Equipo ${name}`; 
                 this.members = [];
                 this.score = 0;
                 this.currentPlayerIndex = 0; 
@@ -768,7 +767,7 @@
                 this.players.forEach(player => player.titleChangesThisRound = 0);
                 this.currentTeamTurnIndex = 0; 
                 this.startTurn();
-                saveGame(this); // Guardar al iniciar nueva ronda
+                saveGame(this); 
             }
 
             getCurrentTeam() {
@@ -796,7 +795,6 @@
                 nextTurnInfo.classList.add('hidden');
                 timeUpMessage.classList.add('hidden');
                 startActingBtn.classList.remove('hidden'); 
-                // No guardar aquí, se guarda al obtener película o procesar resultado
             }
 
             selectMovieForTurn() {
@@ -816,7 +814,7 @@
                 const randomIndex = Math.floor(Math.random() * this.moviesAvailable.length);
                 this.currentMovieForTurn = this.moviesAvailable.splice(randomIndex, 1)[0];
                 this.moviesUsedThisGame.push(this.currentMovieForTurn); 
-                saveGame(this); // Guardar después de seleccionar una película
+                saveGame(this); 
                 return this.currentMovieForTurn;
             }
             
@@ -825,7 +823,7 @@
                     return false; 
                 }
                 this.currentActor.titleChangesThisRound++;
-                this.selectMovieForTurn(); // Esto ya llama a saveGame
+                this.selectMovieForTurn(); 
                 return true; 
             }
 
@@ -851,12 +849,12 @@
                 timeUpMessage.classList.remove('hidden');
                 resultSection.classList.remove('hidden'); 
                 actingSection.classList.add('hidden'); 
-                // No guardar aquí, se guarda en processTurnResult
             }
 
             processTurnResult(guessed) {
                 const timeBeforeStop = this.timeLeft; 
                 this.stopTimer();
+                stopAlarmSound(); 
 
                 if (guessed) {
                     this.getCurrentTeam().addPoints(1);
@@ -870,7 +868,7 @@
                 resultSection.classList.add('hidden');
                 timeUpMessage.classList.add('hidden');
                 
-                saveGame(this); // Guardar después de procesar el resultado
+                saveGame(this); 
 
                 this.currentTeamTurnIndex++;
                 if (this.currentTeamTurnIndex >= this.teamOrder.length) { 
@@ -880,7 +878,7 @@
                     } else if (this.numRounds === 0) { 
                         showScreen('askContinueModal'); 
                     } else {
-                        this.startNewRound(); // Esto ya llama a saveGame
+                        this.startNewRound(); 
                     }
                 } else {
                     const nextTeam = this.getCurrentTeam();
@@ -896,9 +894,10 @@
             endGame() {
                 this.isGameOver = true;
                 this.stopTimer();
+                stopAlarmSound(); 
                 showPodium();
                 showScreen('podiumScreen');
-                clearSavedGame(); // Limpiar al finalizar la partida
+                clearSavedGame(); 
             }
         }
 
@@ -999,21 +998,52 @@
         }
         
         function playAlarmSound() {
-            if (typeof Tone !== 'undefined') {
-                if (!synth) { 
-                    synth = new Tone.Synth({
-                        oscillator: { type: "sine" },
-                        envelope: { attack: 0.005, decay: 0.1, sustain: 0.3, release: 1 }
-                    }).toDestination();
+            if (typeof Tone === 'undefined') return;
+            stopAlarmSound(); 
+
+            if (!alarmSynth) {
+                alarmSynth = new Tone.Synth({
+                    oscillator: { type: "square" }, 
+                    envelope: { attack: 0.01, decay: 0.2, sustain: 0.2, release: 0.5 },
+                    volume: -3 
+                }).toDestination();
+            }
+
+            const playBeep = () => {
+                if (alarmSynth && typeof alarmSynth.triggerAttackRelease === 'function') { 
+                    try {
+                        alarmSynth.triggerAttackRelease("C5", "4n", Tone.now()); 
+                    } catch (e) {
+                        console.error("Error triggering alarm sound:", e);
+                        // Fallback or re-initialize if needed
+                        if (alarmSynth && typeof alarmSynth.dispose === 'function') {
+                            alarmSynth.dispose();
+                        }
+                        alarmSynth = new Tone.Synth({ /* ... */ }).toDestination();
+                    }
+                } else if (alarmSynth && !alarmSynth.loaded) { // For older Tone.js versions or if synth needs loading
+                     console.warn("Alarm synth not fully loaded, trying again.");
                 }
-                const now = Tone.now();
-                synth.triggerAttackRelease("C5", "8n", now);
-                synth.triggerAttackRelease("C5", "8n", now + 0.2);
-                synth.triggerAttackRelease("C5", "8n", now + 0.4);
-            } else {
-                console.warn("Tone.js not loaded, cannot play alarm sound.");
+            };
+
+            playBeep(); 
+            alarmIntervalId = setInterval(playBeep, 1200); 
+        }
+
+        function stopAlarmSound() {
+            if (alarmIntervalId !== null) {
+                clearInterval(alarmIntervalId);
+                alarmIntervalId = null;
+            }
+            if (alarmSynth && typeof alarmSynth.triggerRelease === 'function') { 
+                try {
+                    alarmSynth.triggerRelease(Tone.now());
+                } catch(e) {
+                    console.error("Error stopping alarm sound:", e);
+                }
             }
         }
+
 
         function updateMovieModalUI() {
             if (!game || !game.currentActor || !game.currentMovieForTurn) return;
@@ -1026,15 +1056,15 @@
 
         // --- SETUP MODAL FLOW ---
         openSetupModalBtn.addEventListener('click', () => {
-            clearSavedGame(); // Limpiar juego anterior al iniciar nueva configuración
+            clearSavedGame(); 
             showScreen('setupModalPlayerNames');
         });
 
         nextToTeamsBtn.addEventListener('click', () => {
             const names = playerNamesInput.value.split(',').map(name => name.trim()).filter(name => name);
             playerNamesError.textContent = '';
-            if (names.length < 2) { 
-                playerNamesError.textContent = 'Se necesitan al menos 2 jugadores.';
+            if (names.length < 4) { // VALIDACIÓN ACTUALIZADA
+                playerNamesError.textContent = 'Se necesitan al menos 4 jugadores.';
                 return;
             }
             setupData.playerNames = names;
@@ -1057,6 +1087,10 @@
             if (setupData.playerNames.length < numTeams) {
                 teamsTimeError.textContent = 'Debe haber suficientes jugadores para la cantidad de equipos (jugadores ≥ equipos).';
                 return;
+            }
+             if (setupData.playerNames.length < 4 && numTeams * 2 > setupData.playerNames.length) { // Asegurar al menos 2 por equipo si son menos de 4
+                teamsTimeError.textContent = 'Se necesitan al menos 2 jugadores por equipo si el total es menor a 4.';
+                 return;
             }
             if (timePerTurn < 10) {
                 teamsTimeError.textContent = 'El tiempo por turno debe ser de al menos 10 segundos.';
@@ -1082,14 +1116,14 @@
             setupData.numRounds = parsedRounds;
 
             game = new Game(setupData.playerNames, setupData.numTeams, setupData.timePerTurn, setupData.numRounds);
-            game.startNewRound(); // Esto llama a saveGame()
+            game.startNewRound(); 
             showScreen('gameScreen');
         });
 
         // --- GAME EVENT LISTENERS ---
         getMovieBtn.addEventListener('click', () => {
             if (!game || game.isGameOver || !game.currentActor) return;
-            game.selectMovieForTurn(); // Esto llama a saveGame()
+            game.selectMovieForTurn(); 
             updateMovieModalUI();
             showScreen('movieModal');
             getMovieBtn.classList.add('hidden'); 
@@ -1099,13 +1133,13 @@
             if (!game || !game.currentActor || game.currentActor.titleChangesThisRound >= 2) {
                 return; 
             }
-            game.changeTitleForActor(); // Esto llama a selectMovieForTurn() que a su vez llama a saveGame()
+            game.changeTitleForActor(); 
             updateMovieModalUI(); 
         });
 
         confirmMovieBtn.addEventListener('click', () => {
             if (!game.currentMovieForTurn) {
-                game.selectMovieForTurn(); // Esto llama a saveGame()
+                game.selectMovieForTurn(); 
                 if(!game.currentMovieForTurn) { 
                     const noMovieAlert = document.createElement('div');
                     noMovieAlert.className = 'modal'; 
@@ -1116,7 +1150,7 @@
                     return;
                 }
             }
-            saveGame(game); // Guardar el estado actual con la película confirmada
+            saveGame(game); 
             showScreen('gameScreen'); 
             actingSection.classList.remove('hidden');
             movieToAct.textContent = game.currentMovieForTurn; 
@@ -1130,31 +1164,30 @@
             resultSection.classList.remove('hidden'); 
             timeUpMessage.classList.add('hidden'); 
             game.startTimer();
-            // No es necesario guardar aquí, el estado importante no ha cambiado significativamente
         });
 
         guessedBtn.addEventListener('click', () => {
             if (!game || game.isGameOver) return;
-            game.processTurnResult(true); // Esto llama a saveGame()
+            game.processTurnResult(true); 
         });
 
         notGuessedBtn.addEventListener('click', () => {
             if (!game || game.isGameOver) return;
-            game.processTurnResult(false); // Esto llama a saveGame()
+            game.processTurnResult(false); 
         });
 
         continueNextRoundBtn.addEventListener('click', () => {
             askContinueModal.classList.add('hidden'); 
-            game.startNewRound(); // Esto llama a saveGame()
+            game.startNewRound(); 
         });
 
         endGameFromModalBtn.addEventListener('click', () => {
             askContinueModal.classList.add('hidden'); 
-            game.endGame(); // Esto llama a clearSavedGame()
+            game.endGame(); 
         });
 
         playAgainBtn.addEventListener('click', () => {
-            clearSavedGame(); // Limpiar juego anterior
+            clearSavedGame(); 
             game = null; 
             setupData = { playerNames: [], numTeams: 2, timePerTurn: 60, numRounds: 0 };
             playerNamesInput.value = '';
@@ -1172,49 +1205,50 @@
             const loadedGameInstance = loadGame();
             if (loadedGameInstance) {
                 game = loadedGameInstance;
-                updateGameUI(); // Actualizar toda la UI con los datos cargados
+                updateGameUI(); 
                 if (game.isGameOver) {
                     showPodium();
                     showScreen('podiumScreen');
                 } else {
                      showScreen('gameScreen');
-                    // Determinar qué mostrar en gameScreen basado en el estado cargado
-                    if (game.currentMovieForTurn && game.timeLeft === game.timePerTurn) { // Película seleccionada, esperando para actuar
+                    if (game.currentMovieForTurn && game.timeLeft === game.timePerTurn) { 
                         actingSection.classList.remove('hidden');
                         movieToAct.textContent = game.currentMovieForTurn;
                         startActingBtn.classList.remove('hidden');
                         getMovieBtn.classList.add('hidden');
-                    } else if (game.currentMovieForTurn && game.timeLeft < game.timePerTurn && game.timeLeft > 0) { // Actuación en curso
+                    } else if (game.currentMovieForTurn && game.timeLeft < game.timePerTurn && game.timeLeft > 0) { 
                         actingSection.classList.remove('hidden');
                         movieToAct.textContent = game.currentMovieForTurn;
                         startActingBtn.classList.add('hidden');
                         resultSection.classList.remove('hidden');
-                        game.startTimer(); // Reanudar timer
+                        game.startTimer(); 
                         getMovieBtn.classList.add('hidden');
-                    } else if (game.currentMovieForTurn && game.timeLeft <= 0) { // Tiempo agotado, esperando resultado
+                    } else if (game.currentMovieForTurn && game.timeLeft <= 0) { 
                         actingSection.classList.add('hidden');
                         resultSection.classList.remove('hidden');
                         timeUpMessage.classList.remove('hidden');
+                        playAlarmSound(); // Reanudar alarma si el tiempo estaba agotado
                         getMovieBtn.classList.add('hidden');
-                    } else { // Inicio de turno, necesita obtener película
+                    } else { 
                         getMovieBtn.classList.remove('hidden');
                     }
                 }
             } else {
-                // No debería pasar si el botón está visible, pero como fallback
                 showScreen('initialScreen'); 
                 continuePreviousGameBtn.classList.add('hidden');
             }
         });
 
 
+
         // --- INITIALIZATION ---
         function initializeApp() {
             const loadedGame = loadGame();
-            if (loadedGame) {
+            if (loadedGame && !loadedGame.isGameOver) { 
                 continuePreviousGameBtn.classList.remove('hidden');
             } else {
                 continuePreviousGameBtn.classList.add('hidden');
+                if(loadedGame && loadedGame.isGameOver) clearSavedGame(); 
             }
             showScreen('initialScreen');
         }
@@ -1223,8 +1257,12 @@
 
         document.body.addEventListener('click', async () => {
             if (typeof Tone !== 'undefined' && Tone.context.state !== 'running') {
-                await Tone.start();
-                console.log("Tone.js AudioContext started.");
+                try {
+                    await Tone.start();
+                    console.log("Tone.js AudioContext started.");
+                } catch (e) {
+                    console.error("Error starting Tone.js AudioContext:", e);
+                }
             }
         }, { once: true });
     </script>
